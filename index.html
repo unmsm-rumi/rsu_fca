@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RSU Rumi — Pasaporte de Horas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+<style>
+  :root{
+    --rosa: #A33A52;
+    --rosa-light: #D9738B;
+    --rosa-dark: #7A2740;
+    --rosa-wash: #F7E9EC;
+    --ink: #241B1D;
+    --ink-soft: #5B4F51;
+    --paper: #FBF7F4;
+    --paper-dim: #F1E7E3;
+    --gold: #C9922E;
+    --gold-wash: #FBF0DC;
+    --teal: #2F7D6B;
+    --teal-wash: #E4F1EC;
+    --line: rgba(36,27,29,0.12);
+    --radius: 16px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+    padding: 0 0 60px 0;
+  }
+  h1,h2,h3,.display{
+    font-family:'Manrope', sans-serif;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+  .wrap{ max-width: 980px; margin:0 auto; padding: 0 20px; }
+
+  /* HEADER */
+  header.top{
+    background: linear-gradient(135deg, var(--rosa) 0%, var(--rosa-dark) 100%);
+    color: #fff;
+    padding: 34px 20px 46px;
+    position: relative;
+    overflow:hidden;
+  }
+  header.top::after{
+    content:"";
+    position:absolute; right:-60px; top:-60px;
+    width:260px; height:260px; border-radius:50%;
+    background: rgba(255,255,255,0.08);
+  }
+  header.top::before{
+    content:"";
+    position:absolute; left:-40px; bottom:-90px;
+    width:200px; height:200px; border-radius:50%;
+    background: rgba(255,255,255,0.06);
+  }
+  .top-inner{ max-width:980px; margin:0 auto; position:relative; z-index:1; }
+  .eyebrow{
+    text-transform:uppercase; font-size:12px; letter-spacing:0.14em;
+    font-weight:700; opacity:0.85; margin-bottom:8px;
+  }
+  header.top h1{ font-size: clamp(28px,4.4vw,40px); color:#fff; }
+  header.top p.sub{
+    margin-top:10px; max-width:560px; font-size:15px; opacity:0.92;
+  }
+
+  /* CARD BASE */
+  .card{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+
+  /* KIBU WELCOME */
+  .kibu-hello{
+    display:flex; align-items:center; gap:18px; margin: -30px 0 20px;
+    position:relative; z-index:2; flex-wrap:wrap;
+  }
+  .kibu-img{ width:88px; height:auto; flex-shrink:0; filter: drop-shadow(0 6px 10px rgba(36,27,29,0.15)); }
+  .kibu-bubble{
+    background:#fff; border:1px solid var(--line); border-radius: var(--radius);
+    padding:14px 18px; flex:1; min-width:220px;
+  }
+  .kibu-bubble strong{ font-family:'Manrope'; color: var(--rosa-dark); font-size:15px; }
+  .kibu-bubble p{ margin:4px 0 0; font-size:13px; color: var(--ink-soft); }
+  @media (max-width:520px){ .kibu-hello{ margin-top:10px; } .kibu-img{ width:64px; } }
+
+  /* ID CARD */
+  .id-card{
+    position:relative;
+    z-index:2;
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+    align-items:flex-end;
+  }
+  .id-card .field{ flex:1; min-width:180px; }
+  .id-card label{
+    display:block; font-size:11px; text-transform:uppercase; letter-spacing:0.08em;
+    color: var(--ink-soft); font-weight:700; margin-bottom:6px;
+  }
+  .id-card input{
+    width:100%; padding:11px 12px; border-radius:10px;
+    border:1.5px solid var(--line); font-family:'Inter'; font-size:14px;
+    background: var(--paper);
+  }
+  .id-card input:focus{ outline:2px solid var(--rosa-light); border-color:var(--rosa); }
+  .btn{
+    border:none; border-radius:10px; padding:12px 20px;
+    font-family:'Manrope'; font-weight:700; font-size:14px;
+    cursor:pointer; transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:active{ transform: translateY(1px); }
+  .btn-primary{ background: var(--rosa); color:#fff; }
+  .btn-primary:hover{ background: var(--rosa-dark); }
+  .btn-ghost{ background: transparent; color: var(--rosa-dark); border:1.5px solid var(--rosa); }
+  .btn-ghost:hover{ background: var(--rosa-wash); }
+  .btn:disabled{ opacity:.45; cursor:not-allowed; }
+  #id-msg{ font-size:13px; margin-top:8px; color: var(--rosa-dark); min-height:1em; }
+
+  /* SECTIONS */
+  section{ margin-top: 44px; }
+  .section-head{ margin-bottom:18px; }
+  .section-head .eyebrow-small{
+    font-size:12px; text-transform:uppercase; letter-spacing:0.1em;
+    color: var(--rosa-dark); font-weight:700; margin-bottom:4px;
+  }
+  .section-head h2{ font-size: clamp(20px,3vw,26px); }
+  .section-head p{ color: var(--ink-soft); font-size:14px; margin-top:6px; max-width:560px; }
+
+  /* PASSPORT */
+  .passport{
+    display:grid; grid-template-columns: 200px 1fr; gap:28px;
+  }
+  @media (max-width: 640px){ .passport{ grid-template-columns: 1fr; } }
+  .ring-box{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; }
+  .ring-num{ font-family:'JetBrains Mono'; font-weight:700; font-size:26px; }
+  .ring-label{ font-size:12px; color:var(--ink-soft); text-align:center; }
+  .breakdown{ display:flex; flex-direction:column; gap:12px; justify-content:center; }
+  .bd-row{ display:flex; align-items:center; gap:10px; font-size:13.5px; }
+  .bd-swatch{ width:12px; height:12px; border-radius:3px; flex-shrink:0; }
+  .bd-bar-outer{ flex:1; height:8px; background:var(--paper-dim); border-radius:6px; overflow:hidden; }
+  .bd-bar-inner{ height:100%; border-radius:6px; }
+  .stamps{ margin-top:22px; }
+  .stamps h3{ font-size:14px; margin-bottom:12px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.06em; }
+  .stamp-grid{ display:flex; flex-wrap:wrap; gap:10px; }
+  .stamp{
+    width:74px; height:74px; border-radius:50%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    border: 2.5px dashed var(--rosa-light);
+    font-size:11px; text-align:center; padding:4px;
+    color: var(--rosa-dark); font-weight:600;
+    transform: rotate(-6deg);
+  }
+  .stamp:nth-child(3n){ transform: rotate(4deg); border-color: var(--gold); color:#9c7420; }
+  .stamp:nth-child(3n+2){ transform: rotate(-2deg); border-color: var(--teal); color:#1f5747; }
+  .stamp .stamp-icon{ font-size:18px; margin-bottom:2px; }
+  .empty-note{ color: var(--ink-soft); font-size:13.5px; font-style:italic; }
+
+  /* ALERT BANNER */
+  .banner{
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:16px; flex-wrap:wrap;
+  }
+  .banner.pending{ background: var(--gold-wash); border:1px solid #E3C271; }
+  .banner.done{ background: var(--teal-wash); border:1px solid #9FCBBB; }
+  .banner strong{ font-family:'Manrope'; font-size:15px; }
+  .banner span{ font-size:13.5px; color:var(--ink-soft); display:block; margin-top:2px; }
+
+  /* FILTERS */
+  .filters{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+  .filter-btn{
+    border:1.5px solid var(--line); background:#fff; border-radius:999px;
+    padding:8px 16px; font-size:13px; font-weight:600; cursor:pointer;
+    font-family:'Inter'; color: var(--ink-soft);
+  }
+  .filter-btn.active{ background: var(--rosa); border-color: var(--rosa); color:#fff; }
+
+  /* ACTIVITY GRID */
+  .grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(270px,1fr)); gap:16px; }
+  .act-card{ display:flex; flex-direction:column; gap:10px; }
+  .act-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+  .tag{
+    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+    padding:4px 9px; border-radius:999px; white-space:nowrap;
+  }
+  .tag.social{ background: var(--rosa-wash); color: var(--rosa-dark); }
+  .tag.taller{ background: var(--gold-wash); color:#8a6a1f; }
+  .act-hours{ font-family:'JetBrains Mono'; font-weight:700; font-size:13px; color:var(--ink-soft); }
+  .act-card h3{ font-size:16.5px; line-height:1.3; }
+  .act-meta{ font-size:12.5px; color: var(--ink-soft); display:flex; flex-direction:column; gap:3px; }
+  .act-desc{ font-size:13px; color:var(--ink-soft); }
+  .cupos-row{ margin-top:2px; }
+  .cupos-bar-outer{ height:6px; background:var(--paper-dim); border-radius:6px; overflow:hidden; margin-top:5px; }
+  .cupos-bar-inner{ height:100%; background: var(--teal); border-radius:6px; }
+  .cupos-bar-inner.warn{ background: var(--gold); }
+  .cupos-bar-inner.full{ background: var(--rosa); }
+  .cupos-text{ font-size:11.5px; color: var(--ink-soft); margin-top:4px; }
+  .act-actions{ margin-top:4px; }
+  .act-actions .btn{ width:100%; padding:10px; font-size:13px; }
+  .state-note{ font-size:12px; text-align:center; padding:10px 0 2px; color:var(--ink-soft); }
+  .state-note.ok{ color: var(--teal); font-weight:700; }
+
+  /* ADMIN */
+  .admin-toggle{
+    display:block; margin: 50px auto 0; background:none; border:none;
+    color: var(--ink-soft); font-size:12px; cursor:pointer; text-decoration:underline;
+  }
+  .modal-bg{
+    position:fixed; inset:0; background: rgba(36,27,29,0.5);
+    display:none; align-items:center; justify-content:center; z-index:50; padding:20px;
+  }
+  .modal-bg.open{ display:flex; }
+  .modal{
+    background:#fff; border-radius: var(--radius); padding:26px; width:100%; max-width:460px;
+    max-height:88vh; overflow-y:auto;
+  }
+  .modal h3{ font-size:18px; margin-bottom:4px; }
+  .modal p.hint{ font-size:12.5px; color:var(--ink-soft); margin:4px 0 16px; }
+  .modal label{
+    display:block; font-size:11.5px; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--ink-soft); font-weight:700; margin:12px 0 5px;
+  }
+  .modal input, .modal select, .modal textarea{
+    width:100%; padding:10px 11px; border-radius:9px; border:1.5px solid var(--line);
+    font-family:'Inter'; font-size:13.5px; background:var(--paper);
+  }
+  .modal textarea{ resize:vertical; min-height:60px; }
+  .modal-actions{ display:flex; gap:10px; margin-top:20px; }
+  .modal-actions .btn{ flex:1; }
+  .close-x{ float:right; background:none; border:none; font-size:18px; cursor:pointer; color:var(--ink-soft); }
+  .admin-list{ margin-top:16px; display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto; }
+  .admin-list-item{
+    display:flex; justify-content:space-between; align-items:center; gap:8px;
+    border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:12.5px;
+  }
+  .admin-list-item button{
+    background:none; border:none; color:var(--rosa-dark); cursor:pointer; font-size:12px; font-weight:700;
+  }
+  footer.foot{ text-align:center; margin-top:60px; font-size:12px; color:var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <img src="Rumi.png" alt="Rumi" style="height:52px;width:auto;border-radius:10px;margin-bottom:16px;box-shadow:0 4px 14px rgba(0,0,0,0.15);">
+    <div class="eyebrow">Rumi Académico · Facultad de Ciencias Administrativas</div>
+    <h1>Pasaporte RSU</h1>
+    <p class="sub">Registra tu participación en proyectos sociales, voluntariados y talleres, y sigue el avance de tus 40 horas de Responsabilidad Social Universitaria en un solo lugar.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="kibu-hello">
+    <img src="kibu.png" alt="Kibu" class="kibu-img">
+    <div class="kibu-bubble">
+      <strong>¡Hola! 💗</strong>
+      <p>Ingresa tu código y tu nombre para ver cuántas horas de RSU llevas acumuladas, y descubre las actividades abiertas para completar las que te faltan.</p>
+    </div>
+  </div>
+
+  <div class="card id-card" id="id-card">
+    <div class="field">
+      <label for="in-code">Código universitario</label>
+      <input id="in-code" type="text" placeholder="Ej. 21010123" maxlength="20" inputmode="numeric">
+    </div>
+    <div class="field" id="field-dni">
+      <label for="in-dni">DNI</label>
+      <input id="in-dni" type="text" placeholder="Ej. 74521360" maxlength="8" inputmode="numeric">
+    </div>
+    <div class="field" id="field-nombres">
+      <label for="in-nombres">Nombres (ambos, si tienes dos)</label>
+      <input id="in-nombres" type="text" placeholder="Ej. Alexander Fabricio">
+    </div>
+    <div class="field" id="field-apellidos">
+      <label for="in-apellidos">Apellidos (ambos, si tienes dos)</label>
+      <input id="in-apellidos" type="text" placeholder="Ej. Céspedes Ramos">
+    </div>
+    <div class="field" id="field-carrera">
+      <label for="in-carrera">Carrera</label>
+      <select id="in-carrera">
+        <option value="">Selecciona tu carrera</option>
+        <option value="Administración">Administración</option>
+        <option value="Negocios Internacionales">Negocios Internacionales</option>
+        <option value="Turismo">Turismo</option>
+        <option value="Marketing">Marketing</option>
+        <option value="Marítima y Portuaria">Marítima y Portuaria</option>
+        <option value="Gastronomía">Gastronomía</option>
+      </select>
+    </div>
+    <div class="field" id="field-base">
+      <label for="in-base">Base (ciclo de ingreso)</label>
+      <input id="in-base" type="text" placeholder="Ej. 2022-I">
+    </div>
+    <button class="btn btn-primary" id="btn-enter">Ver mi pasaporte</button>
+  </div>
+  <div id="id-msg" class="wrap" style="padding:0 24px;"></div>
+
+  <section id="section-passport" style="display:none;">
+    <div class="section-head">
+      <div class="eyebrow-small">Mi progreso</div>
+      <h2 id="passport-name">—</h2>
+      <p>Cada actividad completada suma horas automáticamente a tu total. Necesitas 40 horas de RSU en total para poder egresar. <button id="btn-switch-user" style="background:none;border:none;color:var(--rosa-dark);text-decoration:underline;cursor:pointer;font-size:13px;padding:0;">¿No eres tú? Cambiar de usuario</button></p>
+    </div>
+    <div class="card passport">
+      <div class="ring-box">
+        <svg width="150" height="150" viewBox="0 0 150 150">
+          <circle cx="75" cy="75" r="62" fill="none" stroke="#F1E7E3" stroke-width="14"/>
+          <circle id="ring-progress" cx="75" cy="75" r="62" fill="none" stroke="#A33A52" stroke-width="14"
+                  stroke-linecap="round" stroke-dasharray="389.6" stroke-dashoffset="389.6"
+                  transform="rotate(-90 75 75)"/>
+          <text x="75" y="70" text-anchor="middle" font-family="JetBrains Mono" font-weight="700" font-size="26" fill="#241B1D" id="ring-num">0</text>
+          <text x="75" y="90" text-anchor="middle" font-family="Inter" font-size="11" fill="#5B4F51">de 40 horas</text>
+        </svg>
+      </div>
+      <div>
+        <div class="breakdown">
+          <div class="bd-row">
+            <div class="bd-swatch" style="background:var(--rosa);"></div>
+            <div style="width:150px;">Proyectos y voluntariados</div>
+            <div class="bd-bar-outer"><div class="bd-bar-inner" id="bd-social" style="width:0%;background:var(--rosa);"></div></div>
+            <div class="mono" id="bd-social-num" style="width:52px;text-align:right;">0h</div>
+          </div>
+          <div class="bd-row">
+            <div class="bd-swatch" style="background:var(--gold);"></div>
+            <div style="width:150px;">Talleres y conversatorios</div>
+            <div class="bd-bar-outer"><div class="bd-bar-inner" id="bd-taller" style="width:0%;background:var(--gold);"></div></div>
+            <div class="mono" id="bd-taller-num" style="width:52px;text-align:right;">0h</div>
+          </div>
+        </div>
+        <div class="stamps">
+          <h3>Sellos obtenidos</h3>
+          <div class="stamp-grid" id="stamp-grid">
+            <div class="empty-note">Todavía no tienes actividades registradas. Explora las oportunidades abiertas más abajo.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="banner-status" style="margin-top:18px;"></div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div class="eyebrow-small">Oportunidades abiertas</div>
+      <h2>Consigue tus horas de RSU</h2>
+      <p>Rumi gestiona directamente a los ponentes y el proceso interno: inscríbete antes de que se llenen los cupos. Tu inscripción queda <strong>pendiente</strong> hasta que el equipo la confirme (por ejemplo, tras coordinar por el grupo de WhatsApp); recién ahí las horas se suman a tu total. Recuerda: estos programas son para estudiantes desde 3er ciclo en adelante, con matrícula vigente.</p>
+    </div>
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all">Todas</button>
+      <button class="filter-btn" data-filter="social">Proyectos y voluntariados · 10h</button>
+      <button class="filter-btn" data-filter="taller">Talleres y conversatorios · 5h</button>
+    </div>
+    <div class="grid" id="activities-grid"></div>
+  </section>
+
+  <button class="admin-toggle" id="admin-open" style="display:none;">Panel de gestión (equipo Rumi)</button>
+</div>
+
+<footer class="foot">Rumi Académico · Facultad de Ciencias Administrativas — UNMSM</footer>
+
+<!-- ADMIN MODAL -->
+<div class="modal-bg" id="admin-modal">
+  <div class="modal">
+    <button class="close-x" id="admin-close">✕</button>
+    <h3 id="admin-title">Acceso del equipo</h3>
+    <p class="hint" id="admin-hint">Ingresa el código de gestión para abrir el panel.</p>
+    <div id="admin-gate">
+      <label>Código de gestión</label>
+      <input type="password" id="admin-pass" placeholder="••••••••">
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="admin-cancel">Cancelar</button>
+        <button class="btn btn-primary" id="admin-unlock">Entrar</button>
+      </div>
+    </div>
+    <div id="admin-panel" style="display:none;">
+      <label>Título de la actividad</label>
+      <input type="text" id="ad-title" placeholder="Ej. Taller: Finanzas para tu día a día">
+      <label>Tipo (define las horas)</label>
+      <select id="ad-type">
+        <option value="taller">Capacitación · 5h (taller, conversatorio, simposio, conferencia)</option>
+        <option value="social">Proyecto social / voluntariado · 10h</option>
+      </select>
+      <label>Subtipo</label>
+      <select id="ad-subtype"></select>
+      <label>ODS vinculado</label>
+      <select id="ad-ods">
+        <option value="">Sin especificar</option>
+        <option value="ODS 1: Fin de la pobreza">ODS 1: Fin de la pobreza</option>
+        <option value="ODS 2: Hambre cero">ODS 2: Hambre cero</option>
+        <option value="ODS 3: Salud y bienestar">ODS 3: Salud y bienestar</option>
+        <option value="ODS 4: Educación de calidad">ODS 4: Educación de calidad</option>
+        <option value="ODS 5: Igualdad de género">ODS 5: Igualdad de género</option>
+        <option value="ODS 6: Agua limpia y saneamiento">ODS 6: Agua limpia y saneamiento</option>
+        <option value="ODS 7: Energía asequible y no contaminante">ODS 7: Energía asequible y no contaminante</option>
+        <option value="ODS 8: Trabajo decente y crecimiento económico">ODS 8: Trabajo decente y crecimiento económico</option>
+        <option value="ODS 9: Industria, innovación e infraestructura">ODS 9: Industria, innovación e infraestructura</option>
+        <option value="ODS 10: Reducción de las desigualdades">ODS 10: Reducción de las desigualdades</option>
+        <option value="ODS 11: Ciudades y comunidades sostenibles">ODS 11: Ciudades y comunidades sostenibles</option>
+        <option value="ODS 12: Producción y consumo responsables">ODS 12: Producción y consumo responsables</option>
+        <option value="ODS 13: Acción por el clima">ODS 13: Acción por el clima</option>
+        <option value="ODS 14: Vida submarina">ODS 14: Vida submarina</option>
+        <option value="ODS 15: Vida de ecosistemas terrestres">ODS 15: Vida de ecosistemas terrestres</option>
+        <option value="ODS 16: Paz, justicia e instituciones sólidas">ODS 16: Paz, justicia e instituciones sólidas</option>
+        <option value="ODS 17: Alianzas para lograr los objetivos">ODS 17: Alianzas para lograr los objetivos</option>
+      </select>
+      <label>Curso de la malla vinculado</label>
+      <input type="text" id="ad-curso" placeholder="Ej. Responsabilidad Social Empresarial">
+      <label>Docente responsable / organización beneficiaria</label>
+      <input type="text" id="ad-ponente" placeholder="Ej. Área de Proyectos Rumi">
+      <label>Fecha</label>
+      <input type="date" id="ad-fecha">
+      <p class="hint" id="ad-fecha-warn" style="display:none;color:var(--rosa-dark);margin:-2px 0 8px;">⚠️ El CERSEU exige registrar la actividad con mínimo 10 días hábiles de anticipación. Verifica que alcances a tramitarlo a tiempo.</p>
+      <label>Cupos totales (asistentes)</label>
+      <input type="number" id="ad-cupos" min="1" value="20">
+      <label>Descripción breve</label>
+      <textarea id="ad-desc" placeholder="Qué van a hacer los chicos y cómo cuenta para sus horas"></textarea>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="ad-save" style="width:100%;">Publicar actividad</button>
+      </div>
+      <button class="admin-toggle" id="ad-cancel-edit" style="display:none;margin-top:6px;">Cancelar edición</button>
+
+      <label style="margin-top:22px;">Confirmaciones pendientes</label>
+      <div class="admin-list" id="pending-list"></div>
+
+      <div id="email-quota-box" style="margin-top:14px;padding:10px 12px;border-radius:9px;background:var(--paper-dim);font-size:12.5px;color:var(--ink-soft);"></div>
+
+      <label>Actividades publicadas</label>
+      <div class="admin-list" id="admin-list"></div>
+
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="ad-export" style="width:100%;">Descargar registros (CSV)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const RSU_ADMIN_CODE = "RUMI2026"; // cámbialo aquí por el código real del equipo
+  const HOURS = { social: 10, taller: 5 };
+  const TOTAL_GOAL = 40;
+  const RING_CIRC = 2 * Math.PI * 62;
+  const SUBTYPES = {
+    social: ["Proyecto social", "Voluntariado"],
+    taller: ["Taller", "Conversatorio", "Simposio", "Conferencia"]
+  };
+
+  const EMAILJS_SERVICE_ID = "service_4ea37ij";
+  const EMAILJS_TEMPLATE_ID = "template_ww4usvq";
+  const EMAILJS_PUBLIC_KEY = "B6jt2APMNctqzPU_H";
+  const EMAIL_MONTHLY_LIMIT = 200;
+  const EMAIL_SAFETY_BUFFER = 10; // deja de enviar correos 10 antes del límite real, como colchón
+  if(window.emailjs){ emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); }
+
+  function currentMonthKey(){
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  }
+
+  async function getEmailCount(){
+    try{
+      const res = await window.storage.get('rsu_email_count_' + currentMonthKey(), true);
+      if(res && res.value) return parseInt(res.value) || 0;
+    }catch(e){ /* aún no hay envíos este mes */ }
+    return 0;
+  }
+
+  async function incrementEmailCount(){
+    const count = await getEmailCount();
+    try{ await window.storage.set('rsu_email_count_' + currentMonthKey(), String(count+1), true); }
+    catch(e){ /* si falla el contador, no bloqueamos nada */ }
+    return count+1;
+  }
+
+  async function sendRegistrationEmail(act, student){
+    if(!window.emailjs) return;
+    const used = await getEmailCount();
+    if(used >= EMAIL_MONTHLY_LIMIT - EMAIL_SAFETY_BUFFER){
+      console.warn('Límite mensual de correos EmailJS alcanzado, se omite el envío. Revisa el panel de pendientes.');
+      return;
+    }
+    try{
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        student_name: student.name,
+        student_code: student.code,
+        activity_title: act.title,
+        activity_type: act.subtype || (act.type==='social' ? 'Proyecto social/Voluntariado' : 'Capacitación'),
+        hours: HOURS[act.type],
+        activity_date: formatDate(act.fecha),
+        ponente: act.ponente
+      });
+      await incrementEmailCount();
+    }catch(e){
+      console.warn('No se pudo enviar la notificación por correo', e);
+    }
+  }
+
+  let state = { activities: [], student: null };
+
+  const seedActivities = () => ([
+    { id: cid(), title: "Taller: Primeros pasos en finanzas personales", type:"taller", subtype:"Taller",
+      ponente:"Área de Finanzas Rumi", fecha:"2026-09-05", cupoTotal:30, registrados:[],
+      ods:"ODS 4: Educación de calidad", curso:"Finanzas Corporativas",
+      desc:"Sesión práctica sobre presupuesto, ahorro y deudas para estudiantes de la FCA." },
+    { id: cid(), title: "Conversatorio: BASC y comercio exterior seguro", type:"taller", subtype:"Conversatorio",
+      ponente:"Alianza BASC Perú", fecha:"2026-09-12", cupoTotal:25, registrados:[],
+      ods:"ODS 8: Trabajo decente y crecimiento económico", curso:"Comercio Internacional",
+      desc:"Charla sobre certificación BASC y su rol en la cadena logística internacional." },
+    { id: cid(), title: "Voluntariado: Apoyo escolar en Comas", type:"social", subtype:"Voluntariado",
+      ponente:"Área de Proyectos Rumi", fecha:"2026-09-20", cupoTotal:15, registrados:[],
+      ods:"ODS 4: Educación de calidad", curso:"Responsabilidad Social Empresarial",
+      desc:"Acompañamiento en reforzamiento escolar a niños de nivel primaria, un sábado por la mañana." },
+    { id: cid(), title: "Proyecto social: Reforestación en San Juan de Lurigancho", type:"social", subtype:"Proyecto social",
+      ponente:"Área de Proyectos Rumi", fecha:"2026-09-27", cupoTotal:20, registrados:[],
+      ods:"ODS 15: Vida de ecosistemas terrestres", curso:"Gestión Ambiental",
+      desc:"Jornada de siembra y sensibilización ambiental en coordinación con la municipalidad." },
+    { id: cid(), title: "Taller: Introducción a la inversión bursátil", type:"taller", subtype:"Taller",
+      ponente:"Bolsa de Valores de Lima (BVL)", fecha:"2026-10-03", cupoTotal:30, registrados:[],
+      ods:"ODS 8: Trabajo decente y crecimiento económico", curso:"Mercado de Capitales",
+      desc:"Nociones básicas de renta variable, orientado a estudiantes sin experiencia previa." },
+    { id: cid(), title: "Voluntariado: Campaña de salud preventiva FCA", type:"social", subtype:"Voluntariado",
+      ponente:"Área de Proyectos Rumi", fecha:"2026-10-10", cupoTotal:20, registrados:[],
+      ods:"ODS 3: Salud y bienestar", curso:"Gestión de la Salud",
+      desc:"Apoyo en logística y difusión de una campaña de salud dentro del campus." }
+  ]);
+
+  function cid(){ return 'a' + Math.random().toString(36).slice(2,10); }
+
+  async function loadActivities(){
+    try{
+      const res = await window.storage.get('rsu_activities', true);
+      if(res && res.value){ state.activities = JSON.parse(res.value); return; }
+    }catch(e){ /* no existe todavía */ }
+    state.activities = seedActivities();
+    await saveActivities();
+  }
+  async function saveActivities(){
+    return saveWithRetry('rsu_activities', state.activities);
+  }
+
+  async function saveWithRetry(key, value, attempts){
+    attempts = attempts || 2;
+    for(let i=0; i<attempts; i++){
+      try{
+        await window.storage.set(key, JSON.stringify(value), true);
+        return true;
+      }catch(e){
+        if(i === attempts-1){
+          showToast('No se pudo guardar los cambios. Revisa tu conexión e inténtalo de nuevo.');
+          return false;
+        }
+        await new Promise(r=>setTimeout(r, 500));
+      }
+    }
+  }
+
+  function showToast(msg){
+    let el = document.getElementById('rsu-toast');
+    if(!el){
+      el = document.createElement('div');
+      el.id = 'rsu-toast';
+      el.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#7A2740;color:#fff;padding:12px 18px;border-radius:10px;font-family:Inter,sans-serif;font-size:13.5px;z-index:100;box-shadow:0 4px 16px rgba(0,0,0,.2);max-width:90%;text-align:center;';
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.style.display = 'block';
+    clearTimeout(el._t);
+    el._t = setTimeout(()=>{ el.style.display = 'none'; }, 4000);
+  }
+
+  async function loadStudent(code){
+    try{
+      const res = await window.storage.get('rsu_student_' + code, true);
+      if(res && res.value) return JSON.parse(res.value);
+    }catch(e){ /* nuevo estudiante */ }
+    return { code, dni:'', nombres:'', apellidos:'', carrera:'', base:'', name:'', registeredIds:[] };
+  }
+  async function saveStudent(student){
+    return saveWithRetry('rsu_student_' + student.code, student);
+  }
+
+  function getRegistration(act, code){
+    return act.registrados.find(r => r.code === code);
+  }
+
+  function computeHours(student){
+    let social = 0, taller = 0;
+    student.registeredIds.forEach(id=>{
+      const act = state.activities.find(a=>a.id===id);
+      if(!act) return;
+      const reg = getRegistration(act, student.code);
+      if(!reg || reg.status !== 'confirmado') return;
+      if(act.type==='social') social += HOURS.social; else taller += HOURS.taller;
+    });
+    return { social, taller, total: social + taller };
+  }
+
+  function renderPassport(){
+    if(!state.student) return;
+    document.getElementById('section-passport').style.display = 'block';
+    document.getElementById('passport-name').textContent = state.student.name || state.student.code;    const h = computeHours(state.student);
+    const pct = Math.min(1, h.total / TOTAL_GOAL);
+    document.getElementById('ring-progress').style.strokeDashoffset = RING_CIRC * (1 - pct);
+    document.getElementById('ring-num').textContent = h.total;
+    document.getElementById('bd-social').style.width = Math.min(100, (h.social/TOTAL_GOAL)*100) + '%';
+    document.getElementById('bd-taller').style.width = Math.min(100, (h.taller/TOTAL_GOAL)*100) + '%';
+    document.getElementById('bd-social-num').textContent = h.social + 'h';
+    document.getElementById('bd-taller-num').textContent = h.taller + 'h';
+
+    const grid = document.getElementById('stamp-grid');
+    if(state.student.registeredIds.length === 0){
+      grid.innerHTML = '<div class="empty-note">Todavía no tienes actividades registradas. Explora las oportunidades abiertas más abajo.</div>';
+    } else {
+      grid.innerHTML = state.student.registeredIds.map(id=>{
+        const act = state.activities.find(a=>a.id===id);
+        if(!act) return '';
+        const reg = getRegistration(act, state.student.code);
+        const confirmado = reg && reg.status === 'confirmado';
+        const icon = act.type==='social' ? '🤝' : '🎓';
+        const label = confirmado ? (act.type==='social'?'+10h':'+5h') : 'Pendiente';
+        const style = confirmado ? '' : ' style="opacity:.5;"';
+        return `<div class="stamp"${style} title="${escapeHtml(act.title)}"><div class="stamp-icon">${icon}</div>${label}</div>`;
+      }).join('');
+    }
+
+    const banner = document.getElementById('banner-status');
+    if(h.total >= TOTAL_GOAL){
+      banner.innerHTML = `<div class="banner done"><div><strong>¡Completaste tus 40 horas de RSU! 🎉</strong><span>Ya cumples este requisito de egreso. Puedes seguir participando si lo deseas.</span></div></div>`;
+    } else {
+      const faltan = TOTAL_GOAL - h.total;
+      banner.innerHTML = `<div class="banner pending"><div><strong>Te faltan ${faltan} horas para completar tu RSU</strong><span>Revisa las oportunidades abiertas más abajo e inscríbete en la que más te convenga.</span></div><button class="btn btn-primary" onclick="document.getElementById('activities-grid').scrollIntoView({behavior:'smooth'})">Ver oportunidades</button></div>`;
+    }
+  }
+
+  function escapeHtml(s){
+    return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  let currentFilter = 'all';
+  function renderActivities(){
+    const grid = document.getElementById('activities-grid');
+    const list = state.activities.filter(a => currentFilter==='all' || a.type===currentFilter);
+    if(list.length===0){ grid.innerHTML = '<div class="empty-note">No hay actividades en esta categoría por ahora.</div>'; return; }
+    grid.innerHTML = list.map(act=>{
+      const ocupados = act.registrados.length;
+      const pct = Math.min(100, Math.round((ocupados/act.cupoTotal)*100));
+      const full = ocupados >= act.cupoTotal;
+      const barClass = full ? 'full' : (pct>=70 ? 'warn' : '');
+      const miReg = state.student ? getRegistration(act, state.student.code) : null;
+      let actionHtml;
+      if(!state.student){
+        actionHtml = `<div class="state-note">Ingresa tu código arriba para inscribirte</div>`;
+      } else if(miReg && miReg.status === 'confirmado'){
+        actionHtml = `<div class="state-note ok">Confirmado ✓</div>`;
+      } else if(miReg && miReg.status === 'pendiente'){
+        actionHtml = `<div class="state-note" style="color:var(--gold);font-weight:700;">Pendiente de confirmación</div>`;
+      } else if(full){
+        actionHtml = `<button class="btn" disabled style="background:var(--paper-dim);color:var(--ink-soft);">Cupos llenos</button>`;
+      } else {
+        actionHtml = `<button class="btn btn-primary" data-register="${act.id}">Inscribirme</button>`;
+      }
+      return `<div class="card act-card">
+        <div class="act-top">
+          <span class="tag ${act.type}">${escapeHtml(act.subtype || (act.type==='social'?'Social / voluntariado':'Taller / conversatorio'))}</span>
+          <span class="act-hours">+${HOURS[act.type]}h</span>
+        </div>
+        <h3>${escapeHtml(act.title)}</h3>
+        <div class="act-meta">
+          <span>📅 ${formatDate(act.fecha)}</span>
+          <span>🎤 ${escapeHtml(act.ponente)}</span>
+        </div>
+        <div class="act-desc">${escapeHtml(act.desc)}</div>
+        <div class="cupos-row">
+          <div class="cupos-bar-outer"><div class="cupos-bar-inner ${barClass}" style="width:${pct}%;"></div></div>
+          <div class="cupos-text">${ocupados}/${act.cupoTotal} cupos ocupados</div>
+        </div>
+        <div class="act-actions">${actionHtml}</div>
+      </div>`;
+    }).join('');
+
+    grid.querySelectorAll('[data-register]').forEach(btn=>{
+      btn.addEventListener('click', () => registerToActivity(btn.getAttribute('data-register')));
+    });
+  }
+
+  function formatDate(iso){
+    if(!iso) return '';
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric' });
+  }
+
+  async function registerToActivity(actId){
+    if(!state.student) return;
+    const act = state.activities.find(a=>a.id===actId);
+    if(!act) return;
+    if(getRegistration(act, state.student.code)) return;
+    if(act.registrados.length >= act.cupoTotal){ alert('Este cupo ya se llenó.'); return; }
+
+    act.registrados.push({ code: state.student.code, status: 'pendiente', ts: Date.now() });
+    await saveActivities();
+
+    state.student.registeredIds.push(act.id);
+    await saveStudent(state.student);
+
+    sendRegistrationEmail(act, state.student);
+
+    showToast('Te inscribiste. Tu cupo queda reservado y las horas se sumarán cuando Rumi confirme tu asistencia.');
+    renderPassport();
+    renderActivities();
+  }
+
+  document.getElementById('btn-enter').addEventListener('click', async () => {
+    const code = document.getElementById('in-code').value.trim();
+    const dni = document.getElementById('in-dni').value.trim();
+    const nombres = document.getElementById('in-nombres').value.trim();
+    const apellidos = document.getElementById('in-apellidos').value.trim();
+    const carrera = document.getElementById('in-carrera').value;
+    const base = document.getElementById('in-base').value.trim();
+    const msg = document.getElementById('id-msg');
+    if(!code){ msg.textContent = 'Ingresa tu código universitario para continuar.'; return; }
+    msg.textContent = 'Cargando tu pasaporte...';
+    const student = await loadStudent(code);
+    const isReturning = !!student.nombres;
+
+    if(!isReturning){
+      if(!dni || !nombres || !apellidos || !carrera || !base){
+        msg.textContent = 'Como es tu primera vez, completa también DNI, nombres, apellidos, carrera y base.';
+        return;
+      }
+      student.dni = dni;
+      student.nombres = nombres;
+      student.apellidos = apellidos;
+      student.carrera = carrera;
+      student.base = base;
+      student.name = `${nombres} ${apellidos}`;
+    }
+
+    state.student = student;
+    await saveStudent(student);
+    msg.textContent = '';
+    document.getElementById('id-card').style.display = 'none';
+    renderPassport();
+    renderActivities();
+  });
+
+  document.querySelectorAll('.filter-btn').forEach(btn=>{
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.getAttribute('data-filter');
+      renderActivities();
+    });
+  });
+
+  // ADMIN
+  const adminModal = document.getElementById('admin-modal');
+  document.getElementById('admin-open').addEventListener('click', () => adminModal.classList.add('open'));
+  document.getElementById('admin-close').addEventListener('click', closeAdmin);
+  document.getElementById('admin-cancel').addEventListener('click', closeAdmin);
+  function closeAdmin(){
+    adminModal.classList.remove('open');
+    document.getElementById('admin-gate').style.display = 'block';
+    document.getElementById('admin-panel').style.display = 'none';
+    document.getElementById('admin-pass').value = '';
+  }
+  document.getElementById('admin-unlock').addEventListener('click', () => {
+    const pass = document.getElementById('admin-pass').value;
+    if(pass === RSU_ADMIN_CODE){
+      document.getElementById('admin-gate').style.display = 'none';
+      document.getElementById('admin-panel').style.display = 'block';
+      renderAdminList();
+    } else {
+      document.getElementById('admin-hint').textContent = 'Código incorrecto. Inténtalo de nuevo.';
+      document.getElementById('admin-hint').style.color = 'var(--rosa-dark)';
+    }
+  });
+  document.getElementById('ad-save').addEventListener('click', async () => {
+    const title = document.getElementById('ad-title').value.trim();
+    const type = document.getElementById('ad-type').value;
+    const subtype = document.getElementById('ad-subtype').value;
+    const ods = document.getElementById('ad-ods').value;
+    const curso = document.getElementById('ad-curso').value.trim();
+    const ponente = document.getElementById('ad-ponente').value.trim();
+    const fecha = document.getElementById('ad-fecha').value;
+    const cupos = parseInt(document.getElementById('ad-cupos').value) || 1;
+    const desc = document.getElementById('ad-desc').value.trim();
+    if(!title || !fecha){ alert('Completa al menos el título y la fecha.'); return; }
+
+    if(editingActivityId){
+      const act = state.activities.find(a => a.id === editingActivityId);
+      if(act){
+        Object.assign(act, { title, type, subtype, ods, curso, ponente, fecha, cupoTotal: cupos, desc });
+      }
+      cancelEditActivity();
+    } else {
+      state.activities.unshift({ id: cid(), title, type, subtype, ods, curso, ponente, fecha, cupoTotal: cupos, registrados: [], desc });
+      ['ad-title','ad-ponente','ad-fecha','ad-desc','ad-curso'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('ad-cupos').value = 20;
+      document.getElementById('ad-ods').value = '';
+      populateSubtypes();
+    }
+
+    await saveActivities();
+    renderActivities();
+    renderAdminList();
+  });
+  document.getElementById('ad-cancel-edit').addEventListener('click', cancelEditActivity);
+
+  function populateSubtypes(){
+    const type = document.getElementById('ad-type').value;
+    const sel = document.getElementById('ad-subtype');
+    sel.innerHTML = SUBTYPES[type].map(s => `<option value="${s}">${s}</option>`).join('');
+  }
+  document.getElementById('ad-type').addEventListener('change', populateSubtypes);
+  populateSubtypes();
+
+  function businessDaysUntil(dateStr){
+    if(!dateStr) return 99;
+    const target = new Date(dateStr + 'T00:00:00');
+    const today = new Date(); today.setHours(0,0,0,0);
+    let count = 0;
+    const cur = new Date(today);
+    while(cur < target){
+      cur.setDate(cur.getDate()+1);
+      const day = cur.getDay();
+      if(day !== 0 && day !== 6) count++;
+    }
+    return count;
+  }
+  document.getElementById('ad-fecha').addEventListener('change', (e) => {
+    const warn = document.getElementById('ad-fecha-warn');
+    warn.style.display = businessDaysUntil(e.target.value) < 10 ? 'block' : 'none';
+  });
+  function renderAdminList(){
+    const list = document.getElementById('admin-list');
+    list.innerHTML = state.activities.map(a => `
+      <div class="admin-list-item">
+        <span>${escapeHtml(a.title)} (${a.registrados.length}/${a.cupoTotal})</span>
+        <span style="display:flex;gap:10px;">
+          <button data-edit="${a.id}" style="color:var(--teal);">Editar</button>
+          <button data-del="${a.id}">Eliminar</button>
+        </span>
+      </div>`).join('');
+    list.querySelectorAll('[data-del]').forEach(b=>{
+      b.addEventListener('click', async () => {
+        if(!confirm('¿Eliminar esta actividad? Se perderán las inscripciones asociadas.')) return;
+        state.activities = state.activities.filter(a => a.id !== b.getAttribute('data-del'));
+        await saveActivities();
+        renderActivities();
+        renderAdminList();
+        renderPendingList();
+      });
+    });
+    list.querySelectorAll('[data-edit]').forEach(b=>{
+      b.addEventListener('click', () => startEditActivity(b.getAttribute('data-edit')));
+    });
+    renderPendingList();
+    renderEmailQuota();
+  }
+
+  let editingActivityId = null;
+
+  function startEditActivity(id){
+    const act = state.activities.find(a => a.id === id);
+    if(!act) return;
+    editingActivityId = id;
+    document.getElementById('ad-title').value = act.title;
+    document.getElementById('ad-type').value = act.type;
+    populateSubtypes();
+    document.getElementById('ad-subtype').value = act.subtype || '';
+    document.getElementById('ad-ods').value = act.ods || '';
+    document.getElementById('ad-curso').value = act.curso || '';
+    document.getElementById('ad-ponente').value = act.ponente || '';
+    document.getElementById('ad-fecha').value = act.fecha || '';
+    document.getElementById('ad-cupos').value = act.cupoTotal;
+    document.getElementById('ad-desc').value = act.desc || '';
+    document.getElementById('ad-save').textContent = 'Guardar cambios';
+    document.getElementById('ad-cancel-edit').style.display = 'inline-block';
+    document.getElementById('ad-title').scrollIntoView({behavior:'smooth', block:'center'});
+  }
+
+  function cancelEditActivity(){
+    editingActivityId = null;
+    ['ad-title','ad-ponente','ad-fecha','ad-desc','ad-curso'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('ad-cupos').value = 20;
+    document.getElementById('ad-ods').value = '';
+    document.getElementById('ad-type').value = 'taller';
+    populateSubtypes();
+    document.getElementById('ad-save').textContent = 'Publicar actividad';
+    document.getElementById('ad-cancel-edit').style.display = 'none';
+  }
+
+  async function renderEmailQuota(){
+    const box = document.getElementById('email-quota-box');
+    const used = await getEmailCount();
+    const left = EMAIL_MONTHLY_LIMIT - used;
+    const nearLimit = used >= EMAIL_MONTHLY_LIMIT - EMAIL_SAFETY_BUFFER;
+    box.innerHTML = `📧 Correos EmailJS usados este mes: <strong>${used}/${EMAIL_MONTHLY_LIMIT}</strong>` +
+      (nearLimit
+        ? `<br><span style="color:var(--rosa-dark);font-weight:700;">Cerca del límite: dejamos de enviar correos automáticamente para no cortar el servicio. Las inscripciones se siguen registrando con normalidad, revisa "Confirmaciones pendientes" seguido.</span>`
+        : `<br>Quedan ${left} correos disponibles este mes. Se reinicia el 1 de cada mes.`);
+  }
+
+  function renderPendingList(){
+    const box = document.getElementById('pending-list');
+    const rows = [];
+    state.activities.forEach(act => {
+      act.registrados.forEach(reg => {
+        if(reg.status === 'pendiente'){
+          rows.push({ act, reg });
+        }
+      });
+    });
+    if(rows.length === 0){
+      box.innerHTML = '<div class="empty-note" style="padding:6px 2px;">No hay inscripciones pendientes por ahora.</div>';
+      return;
+    }
+    box.innerHTML = rows.map(({act,reg}) => `
+      <div class="admin-list-item">
+        <span><strong>${escapeHtml(reg.code)}</strong> · ${escapeHtml(act.title)}</span>
+        <span style="display:flex;gap:10px;">
+          <button data-confirm="${act.id}|${reg.code}" style="color:var(--teal);">Confirmar</button>
+          <button data-reject="${act.id}|${reg.code}">Rechazar</button>
+        </span>
+      </div>`).join('');
+    box.querySelectorAll('[data-confirm]').forEach(b=>{
+      b.addEventListener('click', () => setRegistrationStatus(b.getAttribute('data-confirm'), 'confirmado'));
+    });
+    box.querySelectorAll('[data-reject]').forEach(b=>{
+      b.addEventListener('click', () => setRegistrationStatus(b.getAttribute('data-reject'), 'rechazado'));
+    });
+  }
+
+  async function setRegistrationStatus(key, newStatus){
+    const [actId, code] = key.split('|');
+    const act = state.activities.find(a => a.id === actId);
+    if(!act) return;
+    if(newStatus === 'rechazado'){
+      act.registrados = act.registrados.filter(r => r.code !== code);
+      const stud = await loadStudent(code);
+      stud.registeredIds = stud.registeredIds.filter(id => id !== actId);
+      await saveStudent(stud);
+      showToast(`Inscripción de ${code} rechazada. El cupo quedó libre.`);
+    } else {
+      const reg = getRegistration(act, code);
+      if(reg) reg.status = 'confirmado';
+      showToast(`Inscripción de ${code} confirmada. Sus horas ya cuentan.`);
+    }
+    await saveActivities();
+    renderActivities();
+    renderAdminList();
+    if(state.student && state.student.code === code) renderPassport();
+  }
+
+  async function exportCsv(){
+    const rows = [['Actividad','Tipo','Subtipo','Horas','ODS','Curso vinculado','Responsable','Fecha','Código estudiante','DNI','Nombres','Apellidos','Carrera','Base','Estado','Inscrito el']];
+    for(const act of state.activities){
+      const base = [act.title, act.type==='social'?'Social/Voluntariado':'Capacitación', act.subtype||'', HOURS[act.type], act.ods||'', act.curso||'', act.ponente, act.fecha];
+      if(act.registrados.length === 0){
+        rows.push([...base, '', '', '', '', '', '', '', '']);
+      } else {
+        for(const reg of act.registrados){
+          const stud = await loadStudent(reg.code);
+          rows.push([...base, reg.code, stud.dni||'', stud.nombres||'', stud.apellidos||'', stud.carrera||'', stud.base||'', reg.status, new Date(reg.ts).toLocaleString('es-PE')]);
+        }
+      }
+    }
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'rsu_rumi_registros.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+  document.getElementById('ad-export').addEventListener('click', exportCsv);
+
+  (async function init(){
+    await loadActivities();
+    renderActivities();
+    if(new URLSearchParams(location.search).get('admin') === '1'){
+      document.getElementById('admin-open').style.display = 'block';
+    }
+    document.getElementById('btn-switch-user').addEventListener('click', () => {
+      state.student = null;
+      document.getElementById('id-card').style.display = 'flex';
+      document.getElementById('in-code').value = '';
+      document.getElementById('in-dni').value = '';
+      document.getElementById('in-nombres').value = '';
+      document.getElementById('in-apellidos').value = '';
+      document.getElementById('in-carrera').value = '';
+      document.getElementById('in-base').value = '';
+      document.getElementById('section-passport').style.display = 'none';
+      renderActivities();
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+  })();
+})();
+</script>
+</body>
+</html>
